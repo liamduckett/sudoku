@@ -25,6 +25,10 @@
         }
     </style>
 
+    <button wire:click="advance">
+        Advance
+    </button>
+
     <div class="w-[40.5rem] h-[40.5rem] mx-auto grid grid-cols-9 grid-rows-9 my-10 border-2 border-black text-2xl">
         @foreach($grid as $rowKey => $row)
             @foreach($row as $columnKey => $item)

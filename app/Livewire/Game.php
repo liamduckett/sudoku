@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Sudoku;
-use App\Models\Tile;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -33,5 +32,19 @@ class Game extends Component
         return view('livewire.game', [
             'grid' => $this->sudoku->grid,
         ]);
+    }
+
+    public function advance(): void
+    {
+        // TODO: need somewhere to add this metadata first
+
+        //foreach($this->sudoku->grid as $rowKey => $row) {
+        //    foreach($row as $columnKey => $item) {
+        //        // only do this when tile is null
+        //        $tile = new Tile($rowKey, $columnKey);
+        //
+        //        dd($this->sudoku->canBePlayedAt($tile));
+        //    }
+        //}
     }
 }

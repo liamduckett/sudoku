@@ -36,12 +36,25 @@ class Sudoku implements Wireable
         // get the rows between in the block
         $rows = array_slice($this->grid, $blockRow * 3 - 3, 3);
 
-        $section = [];
-        $section[] = array_column($rows, $blockColumn * 3 - 2);
-        $section[] = array_column($rows, $blockColumn * 3 - 1);
-        $section[] = array_column($rows, $blockColumn * 3);
+        return array_merge([], ...[
+            array_column($rows, $blockColumn * 3 - 2),
+            array_column($rows, $blockColumn * 3 - 1),
+            array_column($rows, $blockColumn * 3),
+        ]);
+    }
 
-        return $section;
+    public function canBePlayedAt(Tile $tile): array
+    {
+        $nearby = [
+            ...$this->row($tile),
+            ...$this->column($tile),
+            ...$this->section($tile),
+        ];
+
+        $unplayable = array_filter($nearby, fn(?int $item) => $item !== null);
+        $options = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        return array_diff($options, $unplayable);
     }
 
     protected function recursivelyIndexFromOne(array $array): array
