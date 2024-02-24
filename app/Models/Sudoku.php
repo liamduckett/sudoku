@@ -89,7 +89,6 @@ class Sudoku implements Wireable
     public function playDefiniteCandidates(): void
     {
         $this->playSoleCandidates();
-        $this->playUniqueCandidates();
 
         foreach($this->grid as $row) {
             foreach($row->tiles as $tile) {
@@ -109,30 +108,23 @@ class Sudoku implements Wireable
         }
     }
 
-    public function playUniqueCandidates(): void
+    public function checkForUniqueCandidates(Row $row): array
     {
-        $emptyTiles = $this->emptyTiles();
+        $emptyRowTiles = array_filter(
+            $row->tiles,
+            fn(Tile $tile) => $tile->value === null,
+        );
 
-        foreach($emptyTiles as $tile) {
-            // check if a unique candidate in row,
-            //   later I'll need to do column or section...
+        $emptyRowTileCandidates = array_map(
+            fn(Tile $tile) => $tile->candidates,
+            $emptyRowTiles,
+        );
 
-            $emptyRowTiles = array_filter(
-                $this->row($tile),
-                fn(Tile $tile) => $tile->value === null,
-            );
+        $hey = array_merge([], ...$emptyRowTileCandidates);
 
-            $emptyRowTileCandidates = array_map(
-                fn(Tile $tile) => $tile->candidates,
-                $emptyRowTiles,
-            );
+        $hey = array_count_values($hey);
 
-            $hey = array_merge([], ...$emptyRowTileCandidates);
-
-            if(min(array_count_values($hey)) === 1) {
-                //dd("there is a unique candidate!");
-            }
-        }
+        return array_keys($hey, 1);
     }
 
     public function addMetaData(): void
@@ -141,6 +133,10 @@ class Sudoku implements Wireable
 
         foreach($emptyTiles as $tile) {
             $tile->candidates = $this->canBePlayedAt($tile);
+        }
+
+        foreach($this->grid as $row) {
+            $row->uniqueCandidates = $this->checkForUniqueCandidates($row);
         }
     }
 

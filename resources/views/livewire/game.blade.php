@@ -30,14 +30,21 @@
             @foreach($grid as $row)
                 @foreach($row->tiles as $tile)
                     <div class="row-span-1 flex justify-center items-center border-[1px] border-gray-400">
-
                         @if($tile->value)
                             <div>
                                 {{ $tile->value }}
                             </div>
                         @else
-                            <div class="text-sm font-semibold
-                                        {{ $tile->hasSoleCandidate() ? 'text-red-700' : 'text-blue-700' }}">
+                            @php
+                                $color = $tile->hasSoleCandidate()
+                                    ? 'text-red-700'
+                                    : ($row->isUniqueCandidate($tile)
+                                        ? 'text-green-700'
+                                        : 'text-blue-700');
+                            @endphp
+
+
+                            <div class="text-sm font-semibold {{ $color }}">
                                 {{ implode(', ', $tile->candidates) }}
                             </div>
                         @endif

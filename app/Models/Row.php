@@ -14,6 +14,11 @@ class Row implements Wireable
         public array $uniqueCandidates,
     ) {}
 
+    public function isUniqueCandidate(Tile $tile): bool
+    {
+        return array_intersect($tile->candidates, $this->uniqueCandidates) !== [];
+    }
+
     public function toLivewire(): array
     {
         return [
