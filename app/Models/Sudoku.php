@@ -54,7 +54,8 @@ class Sudoku implements Wireable
             ...$this->section($tile),
         ];
 
-        $unplayable = array_filter($nearby, fn(?int $item) => $item !== null);
+        $values = array_map(fn(array $item) => $item['value'], $nearby);
+        $unplayable = array_filter($values, fn(?int $item) => $item !== null);
         $options = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         return array_diff($options, $unplayable);

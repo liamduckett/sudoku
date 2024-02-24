@@ -37,7 +37,13 @@
                 @endphp
 
                 <div class="row-span-1 flex justify-center items-center border-[1px] border-gray-400">
-                    {{ $item['value'] }}
+                    <div class="text-sm">
+                        {{ implode(',', $item['meta'] ?? []) }}
+                    </div>
+
+                    <div>
+                        {{ $item['value'] }}
+                    </div>
                 </div>
             @endforeach
         @endforeach
