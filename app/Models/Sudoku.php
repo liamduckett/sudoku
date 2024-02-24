@@ -85,7 +85,7 @@ class Sudoku implements Wireable
         $emptyTiles = $this->emptyTiles();
 
         foreach($emptyTiles as $tile) {
-            if(count($tile->meta) === 1) {
+            if($tile->hasSingleChoice()) {
                 $tile->value = $tile->meta[0];
             }
 

@@ -13,6 +13,11 @@ class Tile implements Wireable
         public array $meta,
     ) {}
 
+    public function hasSingleChoice(): bool
+    {
+        return count($this->meta) === 1;
+    }
+
     public function toLivewire(): array
     {
         return [
