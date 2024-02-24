@@ -1,26 +1,22 @@
 <div>
     <style>
         div:nth-child(9n+3),
-        div:nth-child(9n+6)
-        {
+        div:nth-child(9n+6) {
             border-right-color: black;
         }
 
         div:nth-child(9n+4),
-        div:nth-child(9n+7)
-        {
+        div:nth-child(9n+7) {
             border-left-color: black;
         }
 
         div:nth-child(n+19):nth-child(-n+27),
-        div:nth-child(n+46):nth-child(-n+54)
-        {
+        div:nth-child(n+46):nth-child(-n+54) {
             border-bottom-color: black;
         }
 
         div:nth-child(n+28):nth-child(-n+36),
-        div:nth-child(n+55):nth-child(-n+63)
-        {
+        div:nth-child(n+55):nth-child(-n+63) {
             border-top-color: black;
         }
     </style>
@@ -41,8 +37,8 @@
                             </div>
                         @else
                             <div class="text-sm font-semibold
-                                        {{ $tile->hasSingleChoice() ? 'text-red-700' : 'text-blue-700' }}">
-                                {{ implode(', ', $tile->meta) }}
+                                        {{ $tile->hasSoleCandidate() ? 'text-red-700' : 'text-blue-700' }}">
+                                {{ implode(', ', $tile->candidates) }}
                             </div>
                         @endif
                     </div>

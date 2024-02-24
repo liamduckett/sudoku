@@ -77,7 +77,7 @@ class Sudoku implements Wireable
     {
         $firstEmptyTile = $this->emptyTiles()->first();
 
-        return $firstEmptyTile?->meta !== [];
+        return $firstEmptyTile?->candidates !== [];
     }
 
     public function fillChoicelessTiles(): void
@@ -85,11 +85,11 @@ class Sudoku implements Wireable
         $emptyTiles = $this->emptyTiles();
 
         foreach($emptyTiles as $tile) {
-            if($tile->hasSingleChoice()) {
-                $tile->value = $tile->meta[0];
+            if($tile->hasSoleCandidate()) {
+                $tile->value = $tile->candidates[0];
             }
 
-            $tile->meta = [];
+            $tile->candidates = [];
         }
     }
 
@@ -98,7 +98,7 @@ class Sudoku implements Wireable
         $emptyTiles = $this->emptyTiles();
 
         foreach($emptyTiles as $tile) {
-            $tile->meta = $this->canBePlayedAt($tile);
+            $tile->candidates = $this->canBePlayedAt($tile);
         }
     }
 
@@ -113,7 +113,7 @@ class Sudoku implements Wireable
                     row: $rowKey,
                     column: $columnKey,
                     value: $item,
-                    meta: [],
+                    candidates: [],
                 );
 
                 $newGrid[$rowKey][$columnKey] = $tile;

@@ -10,12 +10,12 @@ class Tile implements Wireable
         public int $row,
         public int $column,
         public ?int $value,
-        public array $meta,
+        public array $candidates,
     ) {}
 
-    public function hasSingleChoice(): bool
+    public function hasSoleCandidate(): bool
     {
-        return count($this->meta) === 1;
+        return count($this->candidates) === 1;
     }
 
     public function toLivewire(): array
@@ -24,7 +24,7 @@ class Tile implements Wireable
             'row' => $this->row,
             'column' => $this->column,
             'value' => $this->value,
-            'meta' => $this->meta,
+            'candidates' => $this->candidates,
         ];
     }
 
@@ -34,7 +34,7 @@ class Tile implements Wireable
             $value['row'],
             $value['column'],
             $value['value'],
-            $value['meta'],
+            $value['candidates'],
         );
     }
 }
