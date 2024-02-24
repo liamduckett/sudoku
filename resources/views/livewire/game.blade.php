@@ -36,12 +36,12 @@
                     $tile = new \App\Models\Tile($rowKey, $columnKey);
                 @endphp
 
-                <div class="row-span-1 flex justify-center items-center border-[1px] border-gray-400">
-                    <div class="text-sm">
-                        {{ implode(',', $item['meta'] ?? []) }}
+                <div class="row-span-1 flex border-[1px] border-gray-400">
+                    <div class="text-sm min-w-max text-blue-700 font-semibold">
+                        {{ implode(', ', $item['meta'] ?? []) }}
                     </div>
 
-                    <div>
+                    <div class="text-center w-full my-auto">
                         {{ $item['value'] }}
                     </div>
                 </div>
