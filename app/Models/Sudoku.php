@@ -55,14 +55,17 @@ class Sudoku implements Wireable
     /** @return array<int> */
     public function canBePlayedAt(Tile $tile): array
     {
-        $nearby = [
+        $nearby = collect([
             ...$this->row($tile),
             ...$this->column($tile),
             ...$this->section($tile),
-        ];
+        ]);
 
-        $values = array_map(fn(Tile $tile) => $tile->value, $nearby);
-        $unplayable = array_filter($values, fn(?int $value) => $value !== null);
+        $unplayable = $nearby
+            ->filter(fn(Tile $tile) => $tile->value !== null)
+            ->map(fn(Tile $tile) => $tile->value)
+            ->toArray();
+
         $options = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         return array_diff($options, $unplayable);
