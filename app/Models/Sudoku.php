@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Collection;
 use Livewire\Wireable;
 
 class Sudoku implements Wireable
@@ -66,52 +67,42 @@ class Sudoku implements Wireable
             ->map(fn(Tile $tile) => $tile->value)
             ->toArray();
 
-        $options = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-        return array_diff($options, $unplayable);
+        return collect([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            ->diff($unplayable)
+            ->values()
+            ->toArray();
     }
 
     public function hasMetaData(): bool
     {
-        $hasMetaData = false;
+        $firstEmptyTile = $this->emptyTiles()->first();
 
-        foreach($this->grid as $row) {
-            foreach ($row as $item) {
-                if ($item->value === null) {
-                    $hasMetaData = $item->meta !== [];
-                    break 2;
-                }
-            }
-        }
-
-        return $hasMetaData;
+        return $firstEmptyTile?->meta !== [];
     }
 
     public function fillChoicelessTiles(): void
     {
-        foreach($this->grid as $rowKey => $row) {
-            foreach($row as $columnKey => $item) {
-                if($item->value === null and count($item->meta) === 1) {
-                    $this->grid[$rowKey][$columnKey]->value = $item->meta[array_key_first($item->meta)];
-                }
+        $emptyTiles = $this->emptyTiles();
 
-                $this->grid[$rowKey][$columnKey]->meta = [];
+        foreach($emptyTiles as $tile) {
+            if(count($tile->meta) === 1) {
+                $tile->value = $tile->meta[0];
             }
+
+            $tile->meta = [];
         }
     }
 
     public function addMetaData(): void
     {
-        foreach($this->grid as $row) {
-            foreach($row as $item) {
-                if($item->value === null) {
-                    // only do this when tile is null
-                    $item->meta = $this->canBePlayedAt($item);
-                }
-            }
+        $emptyTiles = $this->emptyTiles();
+
+        foreach($emptyTiles as $tile) {
+            $tile->meta = $this->canBePlayedAt($tile);
         }
     }
 
+    /** @return array<array<Tile>> */
     protected static function addEmptyMetaData($grid): array
     {
         $newGrid = [];
@@ -130,6 +121,16 @@ class Sudoku implements Wireable
         }
 
         return $newGrid;
+    }
+
+    /** @return Collection<Tile> */
+    protected function emptyTiles(): Collection
+    {
+        // Map over each row, only returning the empty tiles
+        return collect($this->grid)
+            ->flatMap(
+                fn(array $row) => array_filter($row, fn(Tile $tile) => $tile->value === null)
+            );
     }
 
     public function toLivewire(): array
