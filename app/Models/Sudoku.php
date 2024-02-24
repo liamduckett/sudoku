@@ -80,7 +80,12 @@ class Sudoku implements Wireable
         return $firstEmptyTile?->candidates !== [];
     }
 
-    public function fillChoicelessTiles(): void
+    public function playDefiniteCandidates(): void
+    {
+        $this->playSoleCandidates();
+    }
+
+    public function playSoleCandidates(): void
     {
         $emptyTiles = $this->emptyTiles();
 

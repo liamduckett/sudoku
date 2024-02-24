@@ -51,6 +51,19 @@ class Game extends Component
         //    [null, null, null, 9, 6, null, null, null, null],
         //];
 
+        // unique candidate test
+        $grid = [
+            [null, null, 4, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, 4, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [5, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, 4, null, null, null],
+        ];
+
         $this->sudoku = Sudoku::setUp($grid);
     }
 
@@ -64,7 +77,7 @@ class Game extends Component
     public function advance(): void
     {
         match($this->sudoku->hasMetaData()) {
-            true => $this->sudoku->fillChoicelessTiles(),
+            true => $this->sudoku->playDefiniteCandidates(),
             false => $this->sudoku->addMetaData(),
         };
     }
