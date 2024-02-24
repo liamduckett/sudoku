@@ -81,7 +81,7 @@ class Sudoku implements Wireable
         foreach($grid as $rowKey => $row) {
             foreach($row as $columnKey => $item) {
                 $item = [
-                    'meta' => null,
+                    'meta' => [],
                     'value' => $item,
                 ];
 

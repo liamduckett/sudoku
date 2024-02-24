@@ -43,8 +43,12 @@
                             {{ $item['value'] }}
                         </div>
                     @else
-                        <div class="text-sm text-blue-700 font-semibold">
-                            {{ implode(', ', $item['meta'] ?? []) }}
+                        @php
+                            $solo = count($item['meta']) === 1;
+                        @endphp
+
+                        <div class="text-sm {{ $solo ? 'text-red-700' : 'text-blue-700' }} font-semibold">
+                            {{ implode(', ', $item['meta']) }}
                         </div>
                     @endif
                 </div>
