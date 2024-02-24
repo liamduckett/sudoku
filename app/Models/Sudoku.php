@@ -61,6 +61,48 @@ class Sudoku implements Wireable
         return array_diff($options, $unplayable);
     }
 
+    public function hasMetaData(): bool
+    {
+        $hasMetaData = false;
+
+        foreach($this->grid as $row) {
+            foreach ($row as $item) {
+                if ($item['value'] === null) {
+                    $hasMetaData = $item['meta'] !== [];
+                }
+            }
+        }
+
+        return $hasMetaData;
+    }
+
+    public function fillChoicelessTiles(): void
+    {
+        foreach($this->grid as $rowKey => $row) {
+            foreach($row as $columnKey => $item) {
+                if($item['value'] === null and count($item['meta']) === 1) {
+                    $this->grid[$rowKey][$columnKey]['value'] = $item['meta'][array_key_first($item['meta'])];
+                }
+
+                $this->grid[$rowKey][$columnKey]['meta'] = [];
+            }
+        }
+    }
+
+    public function addMetaData(): void
+    {
+        foreach($this->grid as $rowKey => $row) {
+            foreach($row as $columnKey => $item) {
+                if($item['value'] === null) {
+                    // only do this when tile is null
+                    $tile = new Tile($rowKey, $columnKey);
+
+                    $this->grid[$rowKey][$columnKey]['meta'] = $this->canBePlayedAt($tile);
+                }
+            }
+        }
+    }
+
     protected static function recursivelyIndexFromOne(array $array): array
     {
         foreach($array as $key => $item) {

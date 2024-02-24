@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Sudoku;
-use App\Models\Tile;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -37,47 +36,9 @@ class Game extends Component
 
     public function advance(): void
     {
-        $hasMetaData = false;
-
-        foreach($this->sudoku->grid as $row) {
-            foreach ($row as $item) {
-                if ($item['value'] === null) {
-                    $hasMetaData = $item['meta'] !== [];
-                }
-            }
-        }
-
-        if($hasMetaData) {
-            $this->fillChoicelessTiles();
-        } else {
-            $this->addMetaData();
-        }
-    }
-
-    private function fillChoicelessTiles(): void
-    {
-        foreach($this->sudoku->grid as $rowKey => $row) {
-            foreach($row as $columnKey => $item) {
-                if($item['value'] === null and count($item['meta']) === 1) {
-                    $this->sudoku->grid[$rowKey][$columnKey]['value'] = $item['meta'][array_key_first($item['meta'])];
-                }
-
-                $this->sudoku->grid[$rowKey][$columnKey]['meta'] = [];
-            }
-        }
-    }
-
-    protected function addMetaData(): void
-    {
-        foreach($this->sudoku->grid as $rowKey => $row) {
-            foreach($row as $columnKey => $item) {
-                if($item['value'] === null) {
-                    // only do this when tile is null
-                    $tile = new Tile($rowKey, $columnKey);
-
-                    $this->sudoku->grid[$rowKey][$columnKey]['meta'] = $this->sudoku->canBePlayedAt($tile);
-                }
-            }
-        }
+        match($this->sudoku->hasMetaData()) {
+            true => $this->sudoku->fillChoicelessTiles(),
+            false => $this->sudoku->addMetaData(),
+        };
     }
 }
