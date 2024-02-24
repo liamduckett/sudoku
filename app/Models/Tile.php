@@ -2,31 +2,34 @@
 
 namespace App\Models;
 
-class Tile
+use Livewire\Wireable;
+
+class Tile implements Wireable
 {
     public function __construct(
         public int $row,
         public int $column,
+        public ?int $value,
+        public array $meta,
     ) {}
 
-    public function toDto(): array
+    public function toLivewire(): array
     {
         return [
             'row' => $this->row,
             'column' => $this->column,
+            'value' => $this->value,
+            'meta' => $this->meta,
         ];
     }
 
-    public static function fromDto(array $dto): self
+    public static function fromLivewire($value): static
     {
         return new static(
-            $dto['row'],
-            $dto['column']
+            $value['row'],
+            $value['column'],
+            $value['value'],
+            $value['meta'],
         );
-    }
-
-    public function toJson(): string
-    {
-        return json_encode($this->toDto());
     }
 }

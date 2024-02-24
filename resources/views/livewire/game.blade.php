@@ -33,23 +33,19 @@
         <div class="h-[40.5rem] grid grid-cols-9 grid-rows-9 my-10 border-2 border-black text-2xl">
             @foreach($grid as $rowKey => $row)
                 @foreach($row as $columnKey => $item)
-                    @php
-                        $tile = new \App\Models\Tile($rowKey, $columnKey);
-                    @endphp
-
                     <div class="row-span-1 flex justify-center items-center border-[1px] border-gray-400">
 
-                        @if($item['value'])
+                        @if($item->value)
                             <div>
-                                {{ $item['value'] }}
+                                {{ $item->value }}
                             </div>
                         @else
                             @php
-                                $solo = count($item['meta']) === 1;
+                                $solo = count($item->meta) === 1;
                             @endphp
 
                             <div class="text-sm {{ $solo ? 'text-red-700' : 'text-blue-700' }} font-semibold">
-                                {{ implode(', ', $item['meta']) }}
+                                {{ implode(', ', $item->meta) }}
                             </div>
                         @endif
                     </div>
