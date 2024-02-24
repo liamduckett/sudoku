@@ -7,26 +7,32 @@ use Livewire\Wireable;
 
 class Sudoku implements Wireable
 {
-    /** @param array<array<Tile>> $grid */
+    /** @param array<Row> $grid */
     public function __construct(public array $grid) {}
 
     public static function setUp(array $grid): static
     {
-        // I think 3x3 grid is easier to work with when arrays start at 1
         $grid = static::addEmptyMetaData($grid);
         return new static($grid);
     }
 
-    /** @return array<Tile> */
+    public function toArray(): array
+    {
+        return array_map(
+            fn(Row $row) => $row->tiles,
+            $this->grid,
+        );
+    }
+
     public function row(Tile $tile): array
     {
-        return $this->grid[$tile->row];
+        return $this->grid[$tile->row]->tiles;
     }
 
     /** @return array<Tile> */
     public function column(Tile $tile): array
     {
-        return array_column($this->grid, $tile->column);
+        return array_column($this->toArray(), $tile->column);
     }
 
     /** @return array<Tile> */
@@ -44,7 +50,7 @@ class Sudoku implements Wireable
         //  0 => 0,1,2
         //  1 => 3,4,5
         //  2 => 6,7,8
-        $rows = array_slice($this->grid, $blockRow * 3, 3);
+        $rows = array_slice($this->toArray(), $blockRow * 3, 3);
 
         return array_merge([], ...[
             array_column($rows, $blockColumn * 3),
@@ -86,7 +92,7 @@ class Sudoku implements Wireable
         $this->playUniqueCandidates();
 
         foreach($this->grid as $row) {
-            foreach($row as $tile) {
+            foreach($row->tiles as $tile) {
                 $tile->candidates = [];
             }
         }
@@ -124,7 +130,7 @@ class Sudoku implements Wireable
             $hey = array_merge([], ...$emptyRowTileCandidates);
 
             if(min(array_count_values($hey)) === 1) {
-                dd("there is a unique candidate!");
+                //dd("there is a unique candidate!");
             }
         }
     }
@@ -138,12 +144,14 @@ class Sudoku implements Wireable
         }
     }
 
-    /** @return array<array<Tile>> */
+    /** @return array<Row> */
     protected static function addEmptyMetaData($grid): array
     {
         $newGrid = [];
 
         foreach($grid as $rowKey => $row) {
+            $newRow = [];
+
             foreach($row as $columnKey => $item) {
                 $tile = new Tile(
                     row: $rowKey,
@@ -152,8 +160,17 @@ class Sudoku implements Wireable
                     candidates: [],
                 );
 
-                $newGrid[$rowKey][$columnKey] = $tile;
+                $newRow[] = $tile;
             }
+
+            $newRow = new Row(
+                blockRow: floor($rowKey / 3),
+                blockColumn: floor($rowKey / 3),
+                tiles: $newRow,
+                uniqueCandidates: [],
+            );
+
+            $newGrid[] = $newRow;
         }
 
         return $newGrid;
@@ -165,7 +182,7 @@ class Sudoku implements Wireable
         // Map over each row, only returning the empty tiles
         return collect($this->grid)
             ->flatMap(
-                fn(array $row) => array_filter($row, fn(Tile $tile) => $tile->value === null)
+                fn(Row $row) => array_filter($row->tiles, fn(Tile $tile) => $tile->value === null)
             );
     }
 

@@ -28,7 +28,7 @@
 
         <div class="h-[40.5rem] grid grid-cols-9 grid-rows-9 my-10 border-2 border-black text-2xl">
             @foreach($grid as $row)
-                @foreach($row as $tile)
+                @foreach($row->tiles as $tile)
                     <div class="row-span-1 flex justify-center items-center border-[1px] border-gray-400">
 
                         @if($tile->value)
