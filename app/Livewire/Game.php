@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Sudoku;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -21,8 +22,10 @@ class Game extends Component
             [5, null, 1, 6, null, null, 4, null, null],
         ];
 
+        $sudoku = new Sudoku($grid);
+
         return view('livewire.game', [
-            'grid' => $grid,
+            'grid' => $sudoku->grid,
         ]);
     }
 }
