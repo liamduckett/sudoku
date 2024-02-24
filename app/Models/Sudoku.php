@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-class Sudoku
+use Livewire\Wireable;
+
+class Sudoku implements Wireable
 {
     public array $grid;
 
@@ -22,6 +24,26 @@ class Sudoku
         return array_column($this->grid, $tile->column);
     }
 
+    public function section(Tile $tile): array
+    {
+        // maps:
+        //  1,2,3 => 1
+        //  4,5,6 => 2
+        //  7,8,9 => 3
+        $blockRow = (int) floor(($tile->row - 1) / 3) + 1;
+        $blockColumn = (int) floor(($tile->column - 1) / 3) + 1;
+
+        // get the rows between in the block
+        $rows = array_slice($this->grid, $blockRow * 3 - 3, 3);
+
+        $section = [];
+        $section[] = array_column($rows, $blockColumn * 3 - 2);
+        $section[] = array_column($rows, $blockColumn * 3 - 1);
+        $section[] = array_column($rows, $blockColumn * 3);
+
+        return $section;
+    }
+
     protected function recursivelyIndexFromOne(array $array): array
     {
         foreach($array as $key => $item) {
@@ -33,5 +55,15 @@ class Sudoku
         $keys = range(1, count($array));
 
         return array_combine($keys, $array);
+    }
+
+    public function toLivewire(): array
+    {
+        return $this->grid;
+    }
+
+    public static function fromLivewire($value): static
+    {
+        return new static($value);
     }
 }

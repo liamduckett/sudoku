@@ -9,7 +9,9 @@ use Livewire\Component;
 
 class Game extends Component
 {
-    public function render(): View
+    public Sudoku $sudoku;
+
+    public function mount(): void
     {
         $grid = [
             [null, null, 4, null, null, 7, 8, 3, null],
@@ -23,10 +25,13 @@ class Game extends Component
             [5, null, 1, 6, null, null, 4, null, null],
         ];
 
-        $sudoku = new Sudoku($grid);
+        $this->sudoku = new Sudoku($grid);
+    }
 
+    public function render(): View
+    {
         return view('livewire.game', [
-            'grid' => $sudoku->grid,
+            'grid' => $this->sudoku->grid,
         ]);
     }
 }
