@@ -11,7 +11,6 @@ class Sudoku implements Wireable
     public static function setUp(array $grid): static
     {
         // I think 3x3 grid is easier to work with when arrays start at 1
-        $grid = static::recursivelyIndexFromOne($grid);
         $grid = static::addEmptyMetaData($grid);
 
         return new static($grid);
@@ -30,19 +29,23 @@ class Sudoku implements Wireable
     public function section(Tile $tile): array
     {
         // maps:
-        //  1,2,3 => 1
-        //  4,5,6 => 2
-        //  7,8,9 => 3
-        $blockRow = (int) floor(($tile->row - 1) / 3) + 1;
-        $blockColumn = (int) floor(($tile->column - 1) / 3) + 1;
+        //  0,1,2 => 0
+        //  3,4,5 => 1
+        //  6,7,8 => 2
+        $blockRow = floor($tile->row / 3);
+        $blockColumn = floor($tile->column / 3);
 
         // get the rows between in the block
-        $rows = array_slice($this->grid, $blockRow * 3 - 3, 3);
+        // maps:
+        //  0 => 0,1,2
+        //  1 => 3,4,5
+        //  2 => 6,7,8
+        $rows = array_slice($this->grid, $blockRow * 3, 3);
 
         return array_merge([], ...[
-            array_column($rows, $blockColumn * 3 - 2),
-            array_column($rows, $blockColumn * 3 - 1),
             array_column($rows, $blockColumn * 3),
+            array_column($rows, $blockColumn * 3 + 1),
+            array_column($rows, $blockColumn * 3 + 2),
         ]);
     }
 
@@ -101,19 +104,6 @@ class Sudoku implements Wireable
                 }
             }
         }
-    }
-
-    protected static function recursivelyIndexFromOne(array $array): array
-    {
-        foreach($array as $key => $item) {
-            if(is_array($item)) {
-                $array[$key] = static::recursivelyIndexFromOne($item);
-            }
-        }
-
-        $keys = range(1, count($array));
-
-        return array_combine($keys, $array);
     }
 
     protected static function addEmptyMetaData($grid): array

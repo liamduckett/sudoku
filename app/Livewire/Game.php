@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Sudoku;
+use App\Models\Tile;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -29,6 +30,8 @@ class Game extends Component
 
     public function render(): View
     {
+        $tile = new Tile(0, 0);
+
         return view('livewire.game', [
             'grid' => $this->sudoku->grid,
         ]);
