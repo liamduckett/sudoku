@@ -36,9 +36,8 @@
                     $tile = new \App\Models\Tile($rowKey, $columnKey);
                 @endphp
 
-                <div class="row-span-1 flex justify-center items-center border-[1px] border-gray-400"
-                     wire:click="showSection({{ $tile->toJson() }})">
-                    {{ $item }}
+                <div class="row-span-1 flex justify-center items-center border-[1px] border-gray-400">
+                    {{ $item['value'] }}
                 </div>
             @endforeach
         @endforeach

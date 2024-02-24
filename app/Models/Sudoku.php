@@ -6,12 +6,15 @@ use Livewire\Wireable;
 
 class Sudoku implements Wireable
 {
-    public array $grid;
+    public function __construct(public array $grid) {}
 
-    public function __construct(array $grid)
+    public static function setUp(array $grid): static
     {
         // I think 3x3 grid is easier to work with when arrays start at 1
-        $this->grid = $this->recursivelyIndexFromOne($grid);
+        $grid = static::recursivelyIndexFromOne($grid);
+        $grid = static::addEmptyMetaData($grid);
+
+        return new static($grid);
     }
 
     public function row(Tile $tile): array
@@ -57,17 +60,35 @@ class Sudoku implements Wireable
         return array_diff($options, $unplayable);
     }
 
-    protected function recursivelyIndexFromOne(array $array): array
+    protected static function recursivelyIndexFromOne(array $array): array
     {
         foreach($array as $key => $item) {
             if(is_array($item)) {
-                $array[$key] = $this->recursivelyIndexFromOne($item);
+                $array[$key] = static::recursivelyIndexFromOne($item);
             }
         }
 
         $keys = range(1, count($array));
 
         return array_combine($keys, $array);
+    }
+
+    protected static function addEmptyMetaData($grid): array
+    {
+        $newGrid = [];
+
+        foreach($grid as $rowKey => $row) {
+            foreach($row as $columnKey => $item) {
+                $item = [
+                    'meta' => null,
+                    'value' => $item,
+                ];
+
+                $newGrid[$rowKey][$columnKey] = $item;
+            }
+        }
+
+        return $newGrid;
     }
 
     public function toLivewire(): array

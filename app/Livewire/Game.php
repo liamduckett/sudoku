@@ -24,7 +24,7 @@ class Game extends Component
             [5, null, 1, 6, null, null, 4, null, null],
         ];
 
-        $this->sudoku = new Sudoku($grid);
+        $this->sudoku = Sudoku::setUp($grid);
     }
 
     public function render(): View
@@ -36,6 +36,8 @@ class Game extends Component
 
     public function advance(): void
     {
+        dd($this->sudoku->grid);
+
         // TODO: need somewhere to add this metadata first
 
         //foreach($this->sudoku->grid as $rowKey => $row) {
