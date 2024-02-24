@@ -17,6 +17,11 @@ class Sudoku
         return $this->grid[$tile->row];
     }
 
+    public function column(Tile $tile): array
+    {
+        return array_column($this->grid, $tile->column);
+    }
+
     protected function recursivelyIndexFromOne(array $array): array
     {
         foreach($array as $key => $item) {
