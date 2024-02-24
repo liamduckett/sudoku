@@ -110,21 +110,13 @@ class Sudoku implements Wireable
 
     public function checkForUniqueCandidates(Row $row): array
     {
-        $emptyRowTiles = array_filter(
-            $row->tiles,
-            fn(Tile $tile) => $tile->value === null,
-        );
+        $emptyRowTileCandidates = collect($row->tiles)
+            ->filter(fn(Tile $tile) => $tile->value === null)
+            ->flatMap(fn(Tile $tile) => $tile->candidates)
+            ->countBy()
+            ->toArray();
 
-        $emptyRowTileCandidates = array_map(
-            fn(Tile $tile) => $tile->candidates,
-            $emptyRowTiles,
-        );
-
-        $hey = array_merge([], ...$emptyRowTileCandidates);
-
-        $hey = array_count_values($hey);
-
-        return array_keys($hey, 1);
+        return array_keys($emptyRowTileCandidates, 1);
     }
 
     public function addMetaData(): void
