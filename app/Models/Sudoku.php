@@ -83,6 +83,13 @@ class Sudoku implements Wireable
     public function playDefiniteCandidates(): void
     {
         $this->playSoleCandidates();
+        $this->playUniqueCandidates();
+
+        foreach($this->grid as $row) {
+            foreach($row as $tile) {
+                $tile->candidates = [];
+            }
+        }
     }
 
     public function playSoleCandidates(): void
@@ -93,8 +100,32 @@ class Sudoku implements Wireable
             if($tile->hasSoleCandidate()) {
                 $tile->value = $tile->candidates[0];
             }
+        }
+    }
 
-            $tile->candidates = [];
+    public function playUniqueCandidates(): void
+    {
+        $emptyTiles = $this->emptyTiles();
+
+        foreach($emptyTiles as $tile) {
+            // check if a unique candidate in row,
+            //   later I'll need to do column or section...
+
+            $emptyRowTiles = array_filter(
+                $this->row($tile),
+                fn(Tile $tile) => $tile->value === null,
+            );
+
+            $emptyRowTileCandidates = array_map(
+                fn(Tile $tile) => $tile->candidates,
+                $emptyRowTiles,
+            );
+
+            $hey = array_merge([], ...$emptyRowTileCandidates);
+
+            if(min(array_count_values($hey)) === 1) {
+                dd("there is a unique candidate!");
+            }
         }
     }
 
