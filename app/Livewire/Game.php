@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Sudoku;
+use App\Models\Tile;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
