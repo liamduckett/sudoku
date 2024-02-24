@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Sudoku;
+use App\Livewire\Game;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,4 +14,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', Sudoku::class);
+Route::get('/', Game::class);

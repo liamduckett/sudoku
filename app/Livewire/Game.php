@@ -5,7 +5,7 @@ namespace App\Livewire;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
-class Sudoku extends Component
+class Game extends Component
 {
     public function render(): View
     {
@@ -21,7 +21,7 @@ class Sudoku extends Component
             [5, null, 1, 6, null, null, 4, null, null],
         ];
 
-        return view('livewire.sudoku', [
+        return view('livewire.game', [
             'grid' => $grid,
         ]);
     }
