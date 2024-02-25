@@ -79,6 +79,7 @@ class Sudoku implements Wireable
         //  0,1,2 => 0
         //  3,4,5 => 1
         //  6,7,8 => 2
+        // TODO: use new blockRow logic on tile
         $blockRow = (int) floor($tile->row / 3);
         $blockColumn = (int) floor($tile->column / 3);
 
@@ -142,6 +143,42 @@ class Sudoku implements Wireable
                 $candidate->unique = $candidate->unique || in_array($candidate->value, $uniqueCandidates);
             }
         }
+    }
+
+    public function checkForBlockInteractions(Block $block): void
+    {
+        // for each number, check if they appear in a line!
+
+        // 1. get a list of all placed tiles
+        $candidates = collect($block->tiles)
+            ->flatMap(fn(Tile $tile) => $tile->candidates)
+            ->map(fn(Candidate $candidate) => $candidate->value)
+            ->unique()
+            ->sort();
+
+        // 2. loop over missing values and
+        foreach($candidates as $candidate) {
+            $appearances = [];
+
+            foreach($block->tiles as $tile) {
+                $candidateValues = array_map(
+                    fn(Candidate $candidate) => $candidate->value,
+                    $tile->candidates,
+                );
+
+                if(in_array($candidate, $candidateValues)) {
+                    $appearances[] = $tile;
+                }
+            }
+
+            // 3. check if all appearances are in a line (row / column)
+            if($this->tilesAreInSingleRow($appearances)) {
+                $this->removeCandidateFromRow($candidate, $appearances[0]);
+            }
+            // 4. if so then, rule it out for the rest of the row
+        }
+
+        //dd($candidates);
     }
 
     public function hasMetaData(): bool
@@ -212,6 +249,10 @@ class Sudoku implements Wireable
         foreach($this->blocks() as $block) {
             $this->checkForUniqueCandidates($block);
         }
+
+        foreach($this->blocks() as $block) {
+            $this->checkForBlockInteractions($block);
+        }
     }
 
     /**
@@ -252,6 +293,32 @@ class Sudoku implements Wireable
             );
     }
 
+    /** @param array<Tile> $tiles */
+    protected function tilesAreInSingleRow(array $tiles): bool
+    {
+        $rows = array_map(
+            fn(Tile $tile) => $tile->row,
+            $tiles,
+        );
+
+        $rows = array_unique($rows);
+
+        return count($rows) === 1;
+    }
+
+    /** @param array<Tile> $tiles */
+    protected function tilesAreInSingleColumn(array $tiles): bool
+    {
+        $columns = array_map(
+            fn(Tile $tile) => $tile->column,
+            $tiles,
+        );
+
+        $columns = array_unique($columns);
+
+        return count($columns) === 1;
+    }
+
     /** @return array<array<Tile>> */
     public function toLivewire(): array
     {
@@ -262,5 +329,27 @@ class Sudoku implements Wireable
     public static function fromLivewire(mixed $value): self
     {
         return new self($value);
+    }
+
+    private function removeCandidateFromRow(int $candidateValue, Tile $boss): void
+    {
+        // 1. get the row for this tile
+        $tiles = $this->row($boss);
+
+        // 2. get the tiles excluding this block
+        $relevantTiles = array_filter(
+            $tiles,
+            fn(Tile $tile) => $tile->blockColumn() !== $boss->blockColumn(),
+        );
+
+        // 3. loop through them and remove this candidate if applicable
+        foreach ($relevantTiles as $tile) {
+            $candidates = array_filter(
+                $tile->candidates,
+                fn(Candidate $candidate) => $candidate->value !== $candidateValue,
+            );
+
+            $tile->candidates = $candidates;
+        }
     }
 }

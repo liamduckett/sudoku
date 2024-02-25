@@ -15,6 +15,16 @@ class Tile implements Wireable
         public array $candidates,
     ) {}
 
+    public function blockRow(): int
+    {
+        return floor($this->row / 3);
+    }
+
+    public function blockColumn(): int
+    {
+        return floor($this->column / 3);
+    }
+
     public function hasSoleCandidate(): bool
     {
         return count($this->candidates) === 1;

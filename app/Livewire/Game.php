@@ -79,13 +79,13 @@ class Game extends Component
 
         // Block and column / Row Interaction
         $grid = [
-            [null, 7, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
             [2, null, 1, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null],
             [9, null, 6, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, 7, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null],
         ];
