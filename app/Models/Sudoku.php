@@ -7,7 +7,7 @@ use Livewire\Wireable;
 
 class Sudoku implements Wireable
 {
-    /** @param array<Row> $grid */
+    /** @param array<array<Tile>> $grid */
     public function __construct(public array $grid) {}
 
     /** @param array<array<?int>> $grid */
@@ -20,21 +20,33 @@ class Sudoku implements Wireable
     /** @return array<array<Tile>> */
     public function toArray(): array
     {
-        return array_map(
-            fn(Row $row) => $row->tiles,
-            $this->grid,
-        );
+        return $this->grid;
+    }
+
+    /** @return array<Row> */
+    public function rows(): array
+    {
+        $rows = [];
+
+        // foreach tile in the first row
+        foreach($this->grid as $row) {
+            $rows[] = new Row(
+                blockRow: 1,
+                blockColumn: 2,
+                tiles: $row,
+            );
+        }
+
+        return $rows;
     }
 
     /** @return array<Column> */
-    // TODO: grid should store array<array<?int>
-    //  rows() should work like this...
     public function columns(): array
     {
         $columns = [];
 
         // foreach tile in the first row
-        foreach($this->grid[0]->tiles as $tile) {
+        foreach($this->grid[0] as $tile) {
             $column = new Column(
                 blockRow: 1,
                 blockColumn: 1,
@@ -50,7 +62,7 @@ class Sudoku implements Wireable
     /** @return array<Tile> */
     public function row(Tile $tile): array
     {
-        return $this->grid[$tile->row]->tiles;
+        return $this->grid[$tile->row];
     }
 
     /** @return array<Tile> */
@@ -146,7 +158,7 @@ class Sudoku implements Wireable
         $this->playUniqueCandidates();
 
         foreach($this->grid as $row) {
-            foreach($row->tiles as $tile) {
+            foreach($row as $tile) {
                 $tile->candidates = [];
             }
         }
@@ -188,7 +200,7 @@ class Sudoku implements Wireable
             $this->checkForSoleCandidates($tile);
         }
 
-        foreach($this->grid as $row) {
+        foreach($this->rows() as $row) {
             $this->checkForUniqueCandidates($row);
         }
 
@@ -199,7 +211,7 @@ class Sudoku implements Wireable
 
     /**
      * @param array<array<?int>> $grid
-     * @return array<Row>
+     * @return array<array<Tile>>
      */
     protected static function addEmptyMetaData(array $grid): array
     {
@@ -219,12 +231,6 @@ class Sudoku implements Wireable
                 $newRow[] = $tile;
             }
 
-            $newRow = new Row(
-                blockRow: (int) floor($rowKey / 3),
-                blockColumn: (int) floor($rowKey / 3),
-                tiles: $newRow,
-            );
-
             $newGrid[] = $newRow;
         }
 
@@ -237,17 +243,17 @@ class Sudoku implements Wireable
         // Map over each row, only returning the empty tiles
         return collect($this->grid)
             ->flatMap(
-                fn(Row $row) => array_filter($row->tiles, fn(Tile $tile) => $tile->value === null)
+                fn(array $row) => array_filter($row, fn(Tile $tile) => $tile->value === null)
             );
     }
 
-    /** @return array<Row> */
+    /** @return array<array<Tile>> */
     public function toLivewire(): array
     {
         return $this->grid;
     }
 
-    /** @param array<Row> $value */
+    /** @param array<array<Tile>> $value */
     public static function fromLivewire(mixed $value): self
     {
         return new self($value);
