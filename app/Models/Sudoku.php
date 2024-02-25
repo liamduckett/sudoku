@@ -173,12 +173,10 @@ class Sudoku implements Wireable
 
             // 3. check if all appearances are in a line (row / column)
             if($this->tilesAreInSingleRow($appearances)) {
+                // 4. if so then, rule it out for the rest of the row
                 $this->removeCandidateFromRow($candidate, $appearances[0]);
             }
-            // 4. if so then, rule it out for the rest of the row
         }
-
-        //dd($candidates);
     }
 
     public function hasMetaData(): bool
@@ -349,7 +347,7 @@ class Sudoku implements Wireable
                 fn(Candidate $candidate) => $candidate->value !== $candidateValue,
             );
 
-            $tile->candidates = $candidates;
+            $tile->candidates = array_values($candidates);
         }
     }
 }
