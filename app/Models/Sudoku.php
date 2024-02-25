@@ -75,25 +75,17 @@ class Sudoku implements Wireable
     /** @return array<Tile> */
     public function block(Tile $tile): array
     {
-        // maps:
-        //  0,1,2 => 0
-        //  3,4,5 => 1
-        //  6,7,8 => 2
-        // TODO: use new blockRow logic on tile
-        $blockRow = (int) floor($tile->row / 3);
-        $blockColumn = (int) floor($tile->column / 3);
-
         // get the rows between in the block
         // maps:
         //  0 => 0,1,2
         //  1 => 3,4,5
         //  2 => 6,7,8
-        $rows = array_slice($this->grid, $blockRow * 3, 3);
+        $rows = array_slice($this->grid, $tile->blockRow() * 3, 3);
 
         return array_merge([], ...[
-            array_column($rows, $blockColumn * 3),
-            array_column($rows, $blockColumn * 3 + 1),
-            array_column($rows, $blockColumn * 3 + 2),
+            array_column($rows, $tile->blockColumn() * 3),
+            array_column($rows, $tile->blockColumn() * 3 + 1),
+            array_column($rows, $tile->blockColumn() * 3 + 2),
         ]);
     }
 
