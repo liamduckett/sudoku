@@ -43,9 +43,12 @@
                                         : 'text-blue-700');
                             @endphp
 
-
-                            <div class="text-sm font-semibold {{ $color }}">
-                                {{ implode(', ', $tile->candidates) }}
+                            <div class="text-sm font-semibold text-center px-1 {{ $color }}">
+                                @foreach($tile->candidates as $candidate)
+                                    <span>
+                                        {{ $candidate }}
+                                    </span>
+                                @endforeach
                             </div>
                         @endif
                     </div>
