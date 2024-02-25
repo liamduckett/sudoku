@@ -189,7 +189,6 @@ class Sudoku implements Wireable
                 blockRow: (int) floor($rowKey / 3),
                 blockColumn: (int) floor($rowKey / 3),
                 tiles: $newRow,
-                uniqueCandidates: [],
             );
 
             $newGrid[] = $newRow;
