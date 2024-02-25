@@ -171,10 +171,16 @@ class Sudoku implements Wireable
                 }
             }
 
-            // 3. check if all appearances are in a line (row / column)
+            // 3. check if all appearances are in a line row
             if($this->tilesAreInSingleRow($appearances)) {
                 // 4. if so then, rule it out for the rest of the row
                 $this->removeCandidateFromRow($candidate, $appearances[0]);
+            }
+
+            // 5. check if all appearances are in a line column
+            if($this->tilesAreInSingleColumn($appearances)) {
+                // 6. if so then, rule it out for the rest of the column
+                $this->removeCandidateFromColumn($candidate, $appearances[0]);
             }
         }
     }
@@ -329,7 +335,7 @@ class Sudoku implements Wireable
         return new self($value);
     }
 
-    private function removeCandidateFromRow(int $candidateValue, Tile $boss): void
+    protected function removeCandidateFromRow(int $candidateValue, Tile $boss): void
     {
         // 1. get the row for this tile
         $tiles = $this->row($boss);
@@ -338,6 +344,28 @@ class Sudoku implements Wireable
         $relevantTiles = array_filter(
             $tiles,
             fn(Tile $tile) => $tile->blockColumn() !== $boss->blockColumn(),
+        );
+
+        // 3. loop through them and remove this candidate if applicable
+        foreach ($relevantTiles as $tile) {
+            $candidates = array_filter(
+                $tile->candidates,
+                fn(Candidate $candidate) => $candidate->value !== $candidateValue,
+            );
+
+            $tile->candidates = array_values($candidates);
+        }
+    }
+
+    protected function removeCandidateFromColumn(int $candidateValue, Tile $boss): void
+    {
+        // 1. get the row for this tile
+        $tiles = $this->column($boss);
+
+        // 2. get the tiles excluding this block
+        $relevantTiles = array_filter(
+            $tiles,
+            fn(Tile $tile) => $tile->blockRow() !== $boss->blockRow(),
         );
 
         // 3. loop through them and remove this candidate if applicable
