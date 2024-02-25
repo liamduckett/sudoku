@@ -71,15 +71,19 @@ class Sudoku implements Wireable
             ...$this->section($tile),
         ]);
 
+        /** @var array<int> $unplayable */
         $unplayable = $nearby
             ->filter(fn(Tile $tile) => $tile->value !== null)
             ->map(fn(Tile $tile) => $tile->value)
             ->toArray();
 
-        return collect([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        $result = collect([1, 2, 3, 4, 5, 6, 7, 8, 9])
             ->diff($unplayable)
             ->values()
             ->toArray();
+
+        /** @var array<int> $result */
+        return $result;
     }
 
     public function hasMetaData(): bool
@@ -187,6 +191,7 @@ class Sudoku implements Wireable
         return $this->grid;
     }
 
+    /** @param array<Row> $value */
     public static function fromLivewire(mixed $value): self
     {
         return new self($value);

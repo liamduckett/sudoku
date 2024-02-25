@@ -35,6 +35,7 @@ class Row implements Wireable
         ];
     }
 
+    /** @param array{blockRow: int, blockColumn: int, tiles: array<Tile>, uniqueCandidates: array<int>} $value */
     public static function fromLivewire(mixed $value): self
     {
         return new self(

@@ -30,6 +30,7 @@ class Tile implements Wireable
         ];
     }
 
+    /** @param array{row: int, column: int, value: ?int, candidates: array<int>} $value */
     public static function fromLivewire(mixed $value): self
     {
         return new self(
