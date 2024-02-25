@@ -26,6 +26,27 @@ class Sudoku implements Wireable
         );
     }
 
+    /** @return array<Column> */
+    // TODO: grid should store array<array<?int>
+    //  rows() should work like this...
+    public function columns(): array
+    {
+        $columns = [];
+
+        // foreach tile in the first row
+        foreach($this->grid[0]->tiles as $tile) {
+            $column = new Column(
+                blockRow: 1,
+                blockColumn: 1,
+                tiles: array_column($this->toArray(), $tile->column),
+            );
+
+            $columns[] = $column;
+        }
+
+        return $columns;
+    }
+
     /** @return array<Tile> */
     public function row(Tile $tile): array
     {
@@ -88,24 +109,26 @@ class Sudoku implements Wireable
         );
     }
 
-    public function checkForUniqueCandidates(Row $row): void
+    public function checkForUniqueCandidates(Row|Column $area): void
     {
+        // TODO: check sections too!
+
         // get the unique candidates for this passed row
-        $emptyRowTileCandidates = collect($row->tiles)
+        $emptyAreaTileCandidates = collect($area->tiles)
             ->filter(fn(Tile $tile) => $tile->value === null)
             ->flatMap(fn(Tile $tile) => $tile->candidates)
             ->map(fn (Candidate $candidate) => $candidate->value)
             ->countBy()
             ->toArray();
 
-        $uniqueCandidates = array_keys($emptyRowTileCandidates, 1);
+        $uniqueCandidates = array_keys($emptyAreaTileCandidates, 1);
 
         // loop over each (empty) tile in the row
-        foreach($row->tiles as $tile) {
+        foreach($area->tiles as $tile) {
             //  loop over each candidate in this tile
             foreach($tile->candidates as $candidate) {
                 //  if its value is in the unique candidates set it to true
-                $candidate->unique = in_array($candidate->value, $uniqueCandidates);
+                $candidate->unique = $candidate->unique || in_array($candidate->value, $uniqueCandidates);
             }
         }
     }
@@ -166,6 +189,10 @@ class Sudoku implements Wireable
 
         foreach($this->grid as $row) {
             $this->checkForUniqueCandidates($row);
+        }
+
+        foreach($this->columns() as $column) {
+            $this->checkForUniqueCandidates($column);
         }
     }
 
