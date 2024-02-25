@@ -40,7 +40,7 @@
                                     @php
                                         $color = $tile->hasSoleCandidate()
                                             ? 'text-red-700'
-                                            : ($row->uniqueCandidatesIn($tile)->contains($candidate->value)
+                                            : ($candidate->unique
                                                 ? 'text-green-700'
                                                 : 'text-blue-700');
                                     @endphp

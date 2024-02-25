@@ -89,9 +89,9 @@ class Sudoku implements Wireable
         );
     }
 
-    /** @return array<int> */
-    public function checkForUniqueCandidates(Row $row): array
+    public function checkForUniqueCandidates(Row $row): void
     {
+        // get the unique candidates for this passed row
         $emptyRowTileCandidates = collect($row->tiles)
             ->filter(fn(Tile $tile) => $tile->value === null)
             ->flatMap(fn(Tile $tile) => $tile->candidates)
@@ -99,7 +99,16 @@ class Sudoku implements Wireable
             ->countBy()
             ->toArray();
 
-        return array_keys($emptyRowTileCandidates, 1);
+        $uniqueCandidates = array_keys($emptyRowTileCandidates, 1);
+
+        // loop over each (empty) tile in the row
+        foreach($row->tiles as $tile) {
+            //  loop over each candidate in this tile
+            foreach($tile->candidates as $candidate) {
+                //  if its value is in the unique candidates set it to true
+                $candidate->unique = in_array($candidate->value, $uniqueCandidates);
+            }
+        }
     }
 
     public function hasMetaData(): bool
@@ -145,11 +154,12 @@ class Sudoku implements Wireable
         $emptyTiles = $this->emptyTiles();
 
         foreach($emptyTiles as $tile) {
+            // TODO: make this method alter instead
             $tile->candidates = $this->canBePlayedAt($tile);
         }
 
         foreach($this->grid as $row) {
-            $row->uniqueCandidates = $this->checkForUniqueCandidates($row);
+            $this->checkForUniqueCandidates($row);
         }
     }
 
