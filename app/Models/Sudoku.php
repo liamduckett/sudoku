@@ -174,6 +174,7 @@ class Sudoku implements Wireable
 
         foreach($emptyTiles as $tile) {
             if($tile->hasUniqueCandidate()) {
+                // @phpstan-ignore-next-line: doesnt return null due to above check
                 $tile->value = $tile->uniqueCandidate()->value;
             }
         }
