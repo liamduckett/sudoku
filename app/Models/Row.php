@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Collection;
 use Livewire\Wireable;
 
 class Row implements Wireable
@@ -14,9 +15,9 @@ class Row implements Wireable
         public array $uniqueCandidates,
     ) {}
 
-    public function isUniqueCandidate(Tile $tile): bool
+    public function uniqueCandidatesIn(Tile $tile): Collection
     {
-        return array_intersect($tile->candidates, $this->uniqueCandidates) !== [];
+        return collect($tile->candidates)->intersect($this->uniqueCandidates);
     }
 
     public function toLivewire(): array

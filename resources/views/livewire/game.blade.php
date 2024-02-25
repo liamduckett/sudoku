@@ -35,17 +35,17 @@
                                 {{ $tile->value }}
                             </div>
                         @else
-                            @php
-                                $color = $tile->hasSoleCandidate()
-                                    ? 'text-red-700'
-                                    : ($row->isUniqueCandidate($tile)
-                                        ? 'text-green-700'
-                                        : 'text-blue-700');
-                            @endphp
-
-                            <div class="text-sm font-semibold text-center px-1 {{ $color }}">
+                            <div class="text-sm font-semibold text-center px-1">
                                 @foreach($tile->candidates as $candidate)
-                                    <span>
+                                    @php
+                                        $color = $tile->hasSoleCandidate()
+                                            ? 'text-red-700'
+                                            : ($row->uniqueCandidatesIn($tile)->contains($candidate)
+                                                ? 'text-green-700'
+                                                : 'text-blue-700');
+                                    @endphp
+
+                                    <span class="{{ $color }}">
                                         {{ $candidate }}
                                     </span>
                                 @endforeach
