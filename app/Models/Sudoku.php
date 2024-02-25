@@ -17,12 +17,6 @@ class Sudoku implements Wireable
         return new self($grid);
     }
 
-    /** @return array<array<Tile>> */
-    public function toArray(): array
-    {
-        return $this->grid;
-    }
-
     /** @return array<Row> */
     public function rows(): array
     {
@@ -30,11 +24,7 @@ class Sudoku implements Wireable
 
         // foreach tile in the first row
         foreach($this->grid as $row) {
-            $rows[] = new Row(
-                blockRow: 1,
-                blockColumn: 2,
-                tiles: $row,
-            );
+            $rows[] = new Row($row);
         }
 
         return $rows;
@@ -47,11 +37,7 @@ class Sudoku implements Wireable
 
         // foreach tile in the first row
         foreach($this->grid[0] as $tile) {
-            $column = new Column(
-                blockRow: 1,
-                blockColumn: 1,
-                tiles: array_column($this->toArray(), $tile->column),
-            );
+            $column = new Column(array_column($this->grid, $tile->column));
 
             $columns[] = $column;
         }
@@ -68,7 +54,7 @@ class Sudoku implements Wireable
     /** @return array<Tile> */
     public function column(Tile $tile): array
     {
-        return array_column($this->toArray(), $tile->column);
+        return array_column($this->grid, $tile->column);
     }
 
     /** @return array<Tile> */
@@ -86,7 +72,7 @@ class Sudoku implements Wireable
         //  0 => 0,1,2
         //  1 => 3,4,5
         //  2 => 6,7,8
-        $rows = array_slice($this->toArray(), $blockRow * 3, 3);
+        $rows = array_slice($this->grid, $blockRow * 3, 3);
 
         return array_merge([], ...[
             array_column($rows, $blockColumn * 3),
