@@ -10,12 +10,14 @@ class Sudoku implements Wireable
     /** @param array<Row> $grid */
     public function __construct(public array $grid) {}
 
+    /** @param array<array<?int>> $grid */
     public static function setUp(array $grid): self
     {
         $grid = self::addEmptyMetaData($grid);
         return new self($grid);
     }
 
+    /** @return array<array<Tile>> */
     public function toArray(): array
     {
         return array_map(
@@ -24,6 +26,7 @@ class Sudoku implements Wireable
         );
     }
 
+    /** @return array<Tile> */
     public function row(Tile $tile): array
     {
         return $this->grid[$tile->row]->tiles;
@@ -108,6 +111,7 @@ class Sudoku implements Wireable
         }
     }
 
+    /** @return array<int> */
     public function checkForUniqueCandidates(Row $row): array
     {
         $emptyRowTileCandidates = collect($row->tiles)
@@ -132,8 +136,11 @@ class Sudoku implements Wireable
         }
     }
 
-    /** @return array<Row> */
-    protected static function addEmptyMetaData($grid): array
+    /**
+     * @param array<array<?int>> $grid
+     * @return array<Row>
+     */
+    protected static function addEmptyMetaData(array $grid): array
     {
         $newGrid = [];
 
@@ -164,7 +171,7 @@ class Sudoku implements Wireable
         return $newGrid;
     }
 
-    /** @return Collection<Tile> */
+    /** @return Collection<int, Tile> */
     protected function emptyTiles(): Collection
     {
         // Map over each row, only returning the empty tiles
@@ -174,12 +181,13 @@ class Sudoku implements Wireable
             );
     }
 
+    /** @return array<Row> */
     public function toLivewire(): array
     {
         return $this->grid;
     }
 
-    public static function fromLivewire($value): self
+    public static function fromLivewire(mixed $value): self
     {
         return new self($value);
     }

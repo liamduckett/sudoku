@@ -7,7 +7,10 @@ use Livewire\Wireable;
 
 class Row implements Wireable
 {
-    /** @param array<Tile> $tiles */
+    /**
+     * @param array<Tile> $tiles
+     * @param array<int> $uniqueCandidates
+     */
     public function __construct(
         public int $blockRow,
         public int $blockColumn,
@@ -15,11 +18,13 @@ class Row implements Wireable
         public array $uniqueCandidates,
     ) {}
 
+    /** @return Collection<int, int> */
     public function uniqueCandidatesIn(Tile $tile): Collection
     {
         return collect($tile->candidates)->intersect($this->uniqueCandidates);
     }
 
+    /** @return array{blockRow: int, blockColumn: int, tiles: array<Tile>, uniqueCandidates: array<int>} */
     public function toLivewire(): array
     {
         return [
@@ -30,7 +35,7 @@ class Row implements Wireable
         ];
     }
 
-    public static function fromLivewire($value): self
+    public static function fromLivewire(mixed $value): self
     {
         return new self(
             $value['blockRow'],

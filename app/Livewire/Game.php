@@ -65,17 +65,17 @@ class Game extends Component
         //];
 
         // unique candidate test
-        $grid = [
-            [null, null, 6, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, 5, 4],
-            [null, null, null, null, 5, 4, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [5, 4, null, null, null, null, null, null, null],
-        ];
+        //$grid = [
+        //    [null, null, 6, null, null, null, null, null, null],
+        //    [null, null, null, null, null, null, null, 5, 4],
+        //    [null, null, null, null, 5, 4, null, null, null],
+        //    [null, null, null, null, null, null, null, null, null],
+        //    [null, null, null, null, null, null, null, null, null],
+        //    [null, null, null, null, null, null, null, null, null],
+        //    [null, null, null, null, null, null, null, null, null],
+        //    [null, null, null, null, null, null, null, null, null],
+        //    [5, 4, null, null, null, null, null, null, null],
+        //];
 
         $this->sudoku = Sudoku::setUp($grid);
     }
