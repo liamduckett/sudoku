@@ -146,6 +146,14 @@ class Sudoku implements Wireable
         // I think this should be the tile.
         // we do this by annotating each candidate in each empty tile?
         // first step is to make $tile->candidates an array of Candidates
+
+        $emptyTiles = $this->emptyTiles();
+
+        foreach($emptyTiles as $tile) {
+            if($tile->hasUniqueCandidate()) {
+                $tile->value = $tile->uniqueCandidate()->value;
+            }
+        }
     }
 
     public function addMetaData(): void

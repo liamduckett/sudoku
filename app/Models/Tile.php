@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Livewire\Wireable;
 
 class Tile implements Wireable
@@ -17,6 +18,34 @@ class Tile implements Wireable
     public function hasSoleCandidate(): bool
     {
         return count($this->candidates) === 1;
+    }
+
+    public function hasUniqueCandidate(): bool
+    {
+        // should only be 1
+        $uniqueCandidate = array_filter(
+            $this->candidates,
+            fn(Candidate $candidate) => $candidate->unique === true,
+        );
+
+        return count($uniqueCandidate) === 1;
+    }
+
+    public function uniqueCandidate(): ?Candidate
+    {
+        // should only be 1
+        $uniqueCandidates = array_filter(
+            $this->candidates,
+            fn(Candidate $candidate) => $candidate->unique === true,
+        );
+
+        if(count($uniqueCandidates) > 1) {
+            throw new Exception("Two unique candidates in one tile");
+        }
+
+        return count($uniqueCandidates) === 1
+            ? $uniqueCandidates[array_key_first($uniqueCandidates)]
+            : null;
     }
 
     /** @return array{row: int, column: int, value: ?int, candidates: array<Candidate>} */
