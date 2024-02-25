@@ -340,12 +340,7 @@ class Sudoku implements Wireable
 
         // 3. loop through them and remove this candidate if applicable
         foreach ($relevantTiles as $tile) {
-            $candidates = array_filter(
-                $tile->candidates,
-                fn(Candidate $candidate) => $candidate->value !== $candidateValue,
-            );
-
-            $tile->candidates = array_values($candidates);
+            $tile->removeCandidate($candidateValue);
         }
     }
 
@@ -362,12 +357,7 @@ class Sudoku implements Wireable
 
         // 3. loop through them and remove this candidate if applicable
         foreach ($relevantTiles as $tile) {
-            $candidates = array_filter(
-                $tile->candidates,
-                fn(Candidate $candidate) => $candidate->value !== $candidateValue,
-            );
-
-            $tile->candidates = array_values($candidates);
+            $tile->removeCandidate($candidateValue);
         }
     }
 }

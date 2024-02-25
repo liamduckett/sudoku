@@ -25,6 +25,16 @@ class Tile implements Wireable
         return (int) floor($this->column / 3);
     }
 
+    public function removeCandidate(int $candidateValue): void
+    {
+        $candidates = array_filter(
+            $this->candidates,
+            fn(Candidate $candidate) => $candidate->value !== $candidateValue,
+        );
+
+        $this->candidates = array_values($candidates);
+    }
+
     public function hasSoleCandidate(): bool
     {
         return count($this->candidates) === 1;
