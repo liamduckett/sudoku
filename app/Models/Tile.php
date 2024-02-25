@@ -31,6 +31,7 @@ class Tile implements Wireable
         return count($uniqueCandidate) === 1;
     }
 
+    // TODO: use a conditional return type here
     public function uniqueCandidate(): ?Candidate
     {
         // should only be 1

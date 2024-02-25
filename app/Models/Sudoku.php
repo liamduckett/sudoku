@@ -7,7 +7,7 @@ use Livewire\Wireable;
 
 class Sudoku implements Wireable
 {
-    /** @param array<Row> $grid */
+    /** @param array<array<Tile>> $grid */
     public function __construct(public array $grid) {}
 
     /** @param array<array<?int>> $grid */
@@ -17,25 +17,59 @@ class Sudoku implements Wireable
         return new self($grid);
     }
 
-    /** @return array<array<Tile>> */
-    public function toArray(): array
+    /** @return array<Row> */
+    public function rows(): array
     {
         return array_map(
-            fn(Row $row) => $row->tiles,
+            fn(array $row) => new Row($row),
             $this->grid,
+        );
+    }
+
+    /** @return array<Column> */
+    public function columns(): array
+    {
+        return array_map(
+            fn(Tile $tile) => new Column($this->column($tile)),
+            $this->grid[0],
+        );
+    }
+
+    /** @return array<Section> */
+    public function sections(): array
+    {
+        // need to get the tiles to map over here?
+        // get the first, fourth and seventh Tile
+        // from the first fourth and seventh row
+
+        $relevantTiles = [
+            $this->grid[0][0],
+            $this->grid[3][0],
+            $this->grid[6][0],
+            $this->grid[0][3],
+            $this->grid[3][3],
+            $this->grid[6][3],
+            $this->grid[0][6],
+            $this->grid[3][6],
+            $this->grid[6][6],
+        ];
+
+        return array_map(
+            fn(Tile $tile) => new Section($this->section($tile)),
+            $relevantTiles,
         );
     }
 
     /** @return array<Tile> */
     public function row(Tile $tile): array
     {
-        return $this->grid[$tile->row]->tiles;
+        return $this->grid[$tile->row];
     }
 
     /** @return array<Tile> */
     public function column(Tile $tile): array
     {
-        return array_column($this->toArray(), $tile->column);
+        return array_column($this->grid, $tile->column);
     }
 
     /** @return array<Tile> */
@@ -53,7 +87,7 @@ class Sudoku implements Wireable
         //  0 => 0,1,2
         //  1 => 3,4,5
         //  2 => 6,7,8
-        $rows = array_slice($this->toArray(), $blockRow * 3, 3);
+        $rows = array_slice($this->grid, $blockRow * 3, 3);
 
         return array_merge([], ...[
             array_column($rows, $blockColumn * 3),
@@ -88,24 +122,24 @@ class Sudoku implements Wireable
         );
     }
 
-    public function checkForUniqueCandidates(Row $row): void
+    public function checkForUniqueCandidates(Row|Column|Section $area): void
     {
-        // get the unique candidates for this passed row
-        $emptyRowTileCandidates = collect($row->tiles)
+        // get the unique candidates for the passed area
+        $emptyAreaTileCandidates = collect($area->tiles)
             ->filter(fn(Tile $tile) => $tile->value === null)
             ->flatMap(fn(Tile $tile) => $tile->candidates)
             ->map(fn (Candidate $candidate) => $candidate->value)
             ->countBy()
             ->toArray();
 
-        $uniqueCandidates = array_keys($emptyRowTileCandidates, 1);
+        $uniqueCandidates = array_keys($emptyAreaTileCandidates, 1);
 
         // loop over each (empty) tile in the row
-        foreach($row->tiles as $tile) {
+        foreach($area->tiles as $tile) {
             //  loop over each candidate in this tile
             foreach($tile->candidates as $candidate) {
                 //  if its value is in the unique candidates set it to true
-                $candidate->unique = in_array($candidate->value, $uniqueCandidates);
+                $candidate->unique = $candidate->unique || in_array($candidate->value, $uniqueCandidates);
             }
         }
     }
@@ -123,7 +157,7 @@ class Sudoku implements Wireable
         $this->playUniqueCandidates();
 
         foreach($this->grid as $row) {
-            foreach($row->tiles as $tile) {
+            foreach($row as $tile) {
                 $tile->candidates = [];
             }
         }
@@ -151,6 +185,7 @@ class Sudoku implements Wireable
 
         foreach($emptyTiles as $tile) {
             if($tile->hasUniqueCandidate()) {
+                // @phpstan-ignore-next-line: doesnt return null due to above check
                 $tile->value = $tile->uniqueCandidate()->value;
             }
         }
@@ -164,14 +199,24 @@ class Sudoku implements Wireable
             $this->checkForSoleCandidates($tile);
         }
 
-        foreach($this->grid as $row) {
+        foreach($this->rows() as $row) {
             $this->checkForUniqueCandidates($row);
+        }
+
+        foreach($this->columns() as $column) {
+            $this->checkForUniqueCandidates($column);
+        }
+
+        // I don't think it's possible for a candidate to be unique by section alone
+        // I think a candidate unique by section, will always also be unique by row OR column
+        foreach($this->sections() as $section) {
+            $this->checkForUniqueCandidates($section);
         }
     }
 
     /**
      * @param array<array<?int>> $grid
-     * @return array<Row>
+     * @return array<array<Tile>>
      */
     protected static function addEmptyMetaData(array $grid): array
     {
@@ -191,12 +236,6 @@ class Sudoku implements Wireable
                 $newRow[] = $tile;
             }
 
-            $newRow = new Row(
-                blockRow: (int) floor($rowKey / 3),
-                blockColumn: (int) floor($rowKey / 3),
-                tiles: $newRow,
-            );
-
             $newGrid[] = $newRow;
         }
 
@@ -209,17 +248,17 @@ class Sudoku implements Wireable
         // Map over each row, only returning the empty tiles
         return collect($this->grid)
             ->flatMap(
-                fn(Row $row) => array_filter($row->tiles, fn(Tile $tile) => $tile->value === null)
+                fn(array $row) => array_filter($row, fn(Tile $tile) => $tile->value === null)
             );
     }
 
-    /** @return array<Row> */
+    /** @return array<array<Tile>> */
     public function toLivewire(): array
     {
         return $this->grid;
     }
 
-    /** @param array<Row> $value */
+    /** @param array<array<Tile>> $value */
     public static function fromLivewire(mixed $value): self
     {
         return new self($value);
