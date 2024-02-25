@@ -40,13 +40,13 @@
                                     @php
                                         $color = $tile->hasSoleCandidate()
                                             ? 'text-red-700'
-                                            : ($row->uniqueCandidatesIn($tile)->contains($candidate)
+                                            : ($row->uniqueCandidatesIn($tile)->contains($candidate->value)
                                                 ? 'text-green-700'
                                                 : 'text-blue-700');
                                     @endphp
 
                                     <span class="{{ $color }}">
-                                        {{ $candidate }}
+                                        {{ $candidate->value }}
                                     </span>
                                 @endforeach
                             </div>

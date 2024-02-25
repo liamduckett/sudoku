@@ -6,7 +6,7 @@ use Livewire\Wireable;
 
 class Tile implements Wireable
 {
-    /** @param array<int> $candidates */
+    /** @param array<Candidate> $candidates */
     public function __construct(
         public int $row,
         public int $column,
@@ -19,7 +19,7 @@ class Tile implements Wireable
         return count($this->candidates) === 1;
     }
 
-    /** @return array{row: int, column: int, value: ?int, candidates: array<int>} */
+    /** @return array{row: int, column: int, value: ?int, candidates: array<Candidate>} */
     public function toLivewire(): array
     {
         return [
@@ -30,7 +30,7 @@ class Tile implements Wireable
         ];
     }
 
-    /** @param array{row: int, column: int, value: ?int, candidates: array<int>} $value */
+    /** @param array{row: int, column: int, value: ?int, candidates: array<Candidate>} $value */
     public static function fromLivewire(mixed $value): self
     {
         return new self(

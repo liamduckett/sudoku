@@ -62,7 +62,7 @@ class Sudoku implements Wireable
         ]);
     }
 
-    /** @return array<int> */
+    /** @return array<Candidate> */
     public function canBePlayedAt(Tile $tile): array
     {
         $nearby = collect([
@@ -77,13 +77,29 @@ class Sudoku implements Wireable
             ->map(fn(Tile $tile) => $tile->value)
             ->toArray();
 
-        $result = collect([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        /** @var array<int> $playable */
+        $playable = collect([1, 2, 3, 4, 5, 6, 7, 8, 9])
             ->diff($unplayable)
             ->values()
             ->toArray();
 
-        /** @var array<int> $result */
-        return $result;
+        return array_map(
+            fn(int $value) => new Candidate($value, unique: false),
+            $playable,
+        );
+    }
+
+    /** @return array<int> */
+    public function checkForUniqueCandidates(Row $row): array
+    {
+        $emptyRowTileCandidates = collect($row->tiles)
+            ->filter(fn(Tile $tile) => $tile->value === null)
+            ->flatMap(fn(Tile $tile) => $tile->candidates)
+            ->map(fn (Candidate $candidate) => $candidate->value)
+            ->countBy()
+            ->toArray();
+
+        return array_keys($emptyRowTileCandidates, 1);
     }
 
     public function hasMetaData(): bool
@@ -96,6 +112,7 @@ class Sudoku implements Wireable
     public function playDefiniteCandidates(): void
     {
         $this->playSoleCandidates();
+        $this->playUniqueCandidates();
 
         foreach($this->grid as $row) {
             foreach($row->tiles as $tile) {
@@ -110,21 +127,17 @@ class Sudoku implements Wireable
 
         foreach($emptyTiles as $tile) {
             if($tile->hasSoleCandidate()) {
-                $tile->value = $tile->candidates[0];
+                $tile->value = $tile->candidates[0]->value;
             }
         }
     }
 
-    /** @return array<int> */
-    public function checkForUniqueCandidates(Row $row): array
+    public function playUniqueCandidates(): void
     {
-        $emptyRowTileCandidates = collect($row->tiles)
-            ->filter(fn(Tile $tile) => $tile->value === null)
-            ->flatMap(fn(Tile $tile) => $tile->candidates)
-            ->countBy()
-            ->toArray();
-
-        return array_keys($emptyRowTileCandidates, 1);
+        // I need to loop through <something> and determine if it has a unique candidate
+        // I think this should be the tile.
+        // we do this by annotating each candidate in each empty tile?
+        // first step is to make $tile->candidates an array of Candidates
     }
 
     public function addMetaData(): void

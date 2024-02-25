@@ -21,7 +21,12 @@ class Row implements Wireable
     /** @return Collection<int, int> */
     public function uniqueCandidatesIn(Tile $tile): Collection
     {
-        return collect($tile->candidates)->intersect($this->uniqueCandidates);
+        $candidateValues = array_map(
+            fn(Candidate $candidate) => $candidate->value,
+            $tile->candidates,
+        );
+
+        return collect($candidateValues)->intersect($this->uniqueCandidates);
     }
 
     /** @return array{blockRow: int, blockColumn: int, tiles: array<Tile>, uniqueCandidates: array<int>} */
