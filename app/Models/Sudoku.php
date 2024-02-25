@@ -35,8 +35,8 @@ class Sudoku implements Wireable
         );
     }
 
-    /** @return array<Section> */
-    public function sections(): array
+    /** @return array<Block> */
+    public function blocks(): array
     {
         // need to get the tiles to map over here?
         // get the first, fourth and seventh Tile
@@ -55,7 +55,7 @@ class Sudoku implements Wireable
         ];
 
         return array_map(
-            fn(Tile $tile) => new Section($this->section($tile)),
+            fn(Tile $tile) => new Block($this->block($tile)),
             $relevantTiles,
         );
     }
@@ -73,7 +73,7 @@ class Sudoku implements Wireable
     }
 
     /** @return array<Tile> */
-    public function section(Tile $tile): array
+    public function block(Tile $tile): array
     {
         // maps:
         //  0,1,2 => 0
@@ -101,7 +101,7 @@ class Sudoku implements Wireable
         $nearby = collect([
             ...$this->row($tile),
             ...$this->column($tile),
-            ...$this->section($tile),
+            ...$this->block($tile),
         ]);
 
         /** @var array<int> $unplayable */
@@ -122,7 +122,7 @@ class Sudoku implements Wireable
         );
     }
 
-    public function checkForUniqueCandidates(Row|Column|Section $area): void
+    public function checkForUniqueCandidates(Row|Column|Block $area): void
     {
         // get the unique candidates for the passed area
         $emptyAreaTileCandidates = collect($area->tiles)
@@ -207,10 +207,10 @@ class Sudoku implements Wireable
             $this->checkForUniqueCandidates($column);
         }
 
-        // I don't think it's possible for a candidate to be unique by section alone
-        // I think a candidate unique by section, will always also be unique by row OR column
-        foreach($this->sections() as $section) {
-            $this->checkForUniqueCandidates($section);
+        // I don't think it's possible for a candidate to be unique by block alone
+        // I think a candidate unique by block, will always also be unique by row OR column
+        foreach($this->blocks() as $block) {
+            $this->checkForUniqueCandidates($block);
         }
     }
 

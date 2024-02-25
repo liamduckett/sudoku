@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Livewire\Wireable;
 
-class Section implements Wireable
+class Block implements Wireable
 {
     /** @param array<Tile> $tiles */
     public function __construct(
