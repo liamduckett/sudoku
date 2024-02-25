@@ -35,6 +35,31 @@ class Sudoku implements Wireable
         );
     }
 
+    /** @return array<Section> */
+    public function sections(): array
+    {
+        // need to get the tiles to map over here?
+        // get the first, fourth and seventh Tile
+        // from the first fourth and seventh row
+
+        $relevantTiles = [
+            $this->grid[0][0],
+            $this->grid[3][0],
+            $this->grid[6][0],
+            $this->grid[0][3],
+            $this->grid[3][3],
+            $this->grid[6][3],
+            $this->grid[0][6],
+            $this->grid[3][6],
+            $this->grid[6][6],
+        ];
+
+        return array_map(
+            fn(Tile $tile) => new Section($this->section($tile)),
+            $relevantTiles,
+        );
+    }
+
     /** @return array<Tile> */
     public function row(Tile $tile): array
     {
@@ -97,10 +122,8 @@ class Sudoku implements Wireable
         );
     }
 
-    public function checkForUniqueCandidates(Row|Column $area): void
+    public function checkForUniqueCandidates(Row|Column|Section $area): void
     {
-        // TODO: check sections too!
-
         // get the unique candidates for the passed area
         $emptyAreaTileCandidates = collect($area->tiles)
             ->filter(fn(Tile $tile) => $tile->value === null)
@@ -182,6 +205,12 @@ class Sudoku implements Wireable
 
         foreach($this->columns() as $column) {
             $this->checkForUniqueCandidates($column);
+        }
+
+        // I don't think it's possible for a candidate to be unique by section alone
+        // I think a candidate unique by section, will always also be unique by row OR column
+        foreach($this->sections() as $section) {
+            $this->checkForUniqueCandidates($section);
         }
     }
 
