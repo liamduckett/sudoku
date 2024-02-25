@@ -20,29 +20,19 @@ class Sudoku implements Wireable
     /** @return array<Row> */
     public function rows(): array
     {
-        $rows = [];
-
-        // foreach tile in the first row
-        foreach($this->grid as $row) {
-            $rows[] = new Row($row);
-        }
-
-        return $rows;
+        return array_map(
+            fn(array $row) => new Row($row),
+            $this->grid,
+        );
     }
 
     /** @return array<Column> */
     public function columns(): array
     {
-        $columns = [];
-
-        // foreach tile in the first row
-        foreach($this->grid[0] as $tile) {
-            $column = new Column(array_column($this->grid, $tile->column));
-
-            $columns[] = $column;
-        }
-
-        return $columns;
+        return array_map(
+            fn(Tile $tile) => new Column($this->column($tile)),
+            $this->grid[0],
+        );
     }
 
     /** @return array<Tile> */
@@ -111,7 +101,7 @@ class Sudoku implements Wireable
     {
         // TODO: check sections too!
 
-        // get the unique candidates for this passed row
+        // get the unique candidates for the passed area
         $emptyAreaTileCandidates = collect($area->tiles)
             ->filter(fn(Tile $tile) => $tile->value === null)
             ->flatMap(fn(Tile $tile) => $tile->candidates)
