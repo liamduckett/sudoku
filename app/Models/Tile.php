@@ -17,12 +17,12 @@ class Tile implements Wireable
 
     public function blockRow(): int
     {
-        return floor($this->row / 3);
+        return (int) floor($this->row / 3);
     }
 
     public function blockColumn(): int
     {
-        return floor($this->column / 3);
+        return (int) floor($this->column / 3);
     }
 
     public function hasSoleCandidate(): bool
