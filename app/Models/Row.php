@@ -30,9 +30,9 @@ class Row implements Wireable
         ];
     }
 
-    public static function fromLivewire($value): static
+    public static function fromLivewire($value): self
     {
-        return new static(
+        return new self(
             $value['blockRow'],
             $value['blockColumn'],
             $value['tiles'],

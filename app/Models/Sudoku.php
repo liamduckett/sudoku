@@ -10,10 +10,10 @@ class Sudoku implements Wireable
     /** @param array<Row> $grid */
     public function __construct(public array $grid) {}
 
-    public static function setUp(array $grid): static
+    public static function setUp(array $grid): self
     {
-        $grid = static::addEmptyMetaData($grid);
-        return new static($grid);
+        $grid = self::addEmptyMetaData($grid);
+        return new self($grid);
     }
 
     public function toArray(): array
@@ -42,8 +42,8 @@ class Sudoku implements Wireable
         //  0,1,2 => 0
         //  3,4,5 => 1
         //  6,7,8 => 2
-        $blockRow = floor($tile->row / 3);
-        $blockColumn = floor($tile->column / 3);
+        $blockRow = (int) floor($tile->row / 3);
+        $blockColumn = (int) floor($tile->column / 3);
 
         // get the rows between in the block
         // maps:
@@ -152,8 +152,8 @@ class Sudoku implements Wireable
             }
 
             $newRow = new Row(
-                blockRow: floor($rowKey / 3),
-                blockColumn: floor($rowKey / 3),
+                blockRow: (int) floor($rowKey / 3),
+                blockColumn: (int) floor($rowKey / 3),
                 tiles: $newRow,
                 uniqueCandidates: [],
             );
@@ -179,8 +179,8 @@ class Sudoku implements Wireable
         return $this->grid;
     }
 
-    public static function fromLivewire($value): static
+    public static function fromLivewire($value): self
     {
-        return new static($value);
+        return new self($value);
     }
 }

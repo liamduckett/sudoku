@@ -28,9 +28,9 @@ class Tile implements Wireable
         ];
     }
 
-    public static function fromLivewire($value): static
+    public static function fromLivewire($value): self
     {
-        return new static(
+        return new self(
             $value['row'],
             $value['column'],
             $value['value'],
