@@ -62,8 +62,7 @@ class Sudoku implements Wireable
         ]);
     }
 
-    /** @return array<Candidate> */
-    public function canBePlayedAt(Tile $tile): array
+    public function checkForSoleCandidates(Tile $tile): void
     {
         $nearby = collect([
             ...$this->row($tile),
@@ -83,7 +82,7 @@ class Sudoku implements Wireable
             ->values()
             ->toArray();
 
-        return array_map(
+        $tile->candidates = array_map(
             fn(int $value) => new Candidate($value, unique: false),
             $playable,
         );
@@ -154,8 +153,7 @@ class Sudoku implements Wireable
         $emptyTiles = $this->emptyTiles();
 
         foreach($emptyTiles as $tile) {
-            // TODO: make this method alter instead
-            $tile->candidates = $this->canBePlayedAt($tile);
+            $this->checkForSoleCandidates($tile);
         }
 
         foreach($this->grid as $row) {
