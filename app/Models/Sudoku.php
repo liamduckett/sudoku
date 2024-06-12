@@ -35,8 +35,8 @@ class Sudoku implements Wireable
         );
     }
 
-    /** @return array<Section> */
-    public function sections(): array
+    /** @return array<Block> */
+    public function blocks(): array
     {
         // need to get the tiles to map over here?
         // get the first, fourth and seventh Tile
@@ -55,7 +55,7 @@ class Sudoku implements Wireable
         ];
 
         return array_map(
-            fn(Tile $tile) => new Section($this->section($tile)),
+            fn(Tile $tile) => new Block($this->block($tile)),
             $relevantTiles,
         );
     }
@@ -73,26 +73,19 @@ class Sudoku implements Wireable
     }
 
     /** @return array<Tile> */
-    public function section(Tile $tile): array
+    public function block(Tile $tile): array
     {
-        // maps:
-        //  0,1,2 => 0
-        //  3,4,5 => 1
-        //  6,7,8 => 2
-        $blockRow = (int) floor($tile->row / 3);
-        $blockColumn = (int) floor($tile->column / 3);
-
         // get the rows between in the block
         // maps:
         //  0 => 0,1,2
         //  1 => 3,4,5
         //  2 => 6,7,8
-        $rows = array_slice($this->grid, $blockRow * 3, 3);
+        $rows = array_slice($this->grid, $tile->blockRow() * 3, 3);
 
         return array_merge([], ...[
-            array_column($rows, $blockColumn * 3),
-            array_column($rows, $blockColumn * 3 + 1),
-            array_column($rows, $blockColumn * 3 + 2),
+            array_column($rows, $tile->blockColumn() * 3),
+            array_column($rows, $tile->blockColumn() * 3 + 1),
+            array_column($rows, $tile->blockColumn() * 3 + 2),
         ]);
     }
 
@@ -101,7 +94,7 @@ class Sudoku implements Wireable
         $nearby = collect([
             ...$this->row($tile),
             ...$this->column($tile),
-            ...$this->section($tile),
+            ...$this->block($tile),
         ]);
 
         /** @var array<int> $unplayable */
@@ -122,7 +115,7 @@ class Sudoku implements Wireable
         );
     }
 
-    public function checkForUniqueCandidates(Row|Column|Section $area): void
+    public function checkForUniqueCandidates(Row|Column|Block $area): void
     {
         // get the unique candidates for the passed area
         $emptyAreaTileCandidates = collect($area->tiles)
@@ -142,6 +135,48 @@ class Sudoku implements Wireable
                 $candidate->unique = $candidate->unique || in_array($candidate->value, $uniqueCandidates);
             }
         }
+    }
+
+    public function checkForBlockInteractions(Block $block): void
+    {
+        // for each number, check if they appear in a line!
+
+        // 1. get a list of all placed tiles
+        $candidates = collect($block->tiles)
+            ->flatMap(fn(Tile $tile) => $tile->candidates)
+            ->map(fn(Candidate $candidate) => $candidate->value)
+            ->unique()
+            ->sort();
+
+        // 2. loop over missing values and
+        foreach($candidates as $candidate) {
+            $appearances = [];
+
+            foreach($block->tiles as $tile) {
+                $candidateValues = array_map(
+                    fn(Candidate $candidate) => $candidate->value,
+                    $tile->candidates,
+                );
+
+                if(in_array($candidate, $candidateValues)) {
+                    $appearances[] = $tile;
+                }
+            }
+
+            // 3. check if all appearances are in a line row
+            if($this->tilesAreInSingleRow($appearances)) {
+                // 4. if so then, rule it out for the rest of the row
+                $this->removeCandidateFromRow($candidate, $appearances[0]);
+            }
+
+            // 5. check if all appearances are in a line column
+            if($this->tilesAreInSingleColumn($appearances)) {
+                // 6. if so then, rule it out for the rest of the column
+                $this->removeCandidateFromColumn($candidate, $appearances[0]);
+            }
+        }
+
+        // TODO: block / block interactions: https://www.kristanix.com/sudokuepic/sudoku-solving-techniques.php
     }
 
     public function hasMetaData(): bool
@@ -207,10 +242,14 @@ class Sudoku implements Wireable
             $this->checkForUniqueCandidates($column);
         }
 
-        // I don't think it's possible for a candidate to be unique by section alone
-        // I think a candidate unique by section, will always also be unique by row OR column
-        foreach($this->sections() as $section) {
-            $this->checkForUniqueCandidates($section);
+        // I don't think it's possible for a candidate to be unique by block alone
+        // I think a candidate unique by block, will always also be unique by row OR column
+        foreach($this->blocks() as $block) {
+            $this->checkForUniqueCandidates($block);
+        }
+
+        foreach($this->blocks() as $block) {
+            $this->checkForBlockInteractions($block);
         }
     }
 
@@ -252,6 +291,32 @@ class Sudoku implements Wireable
             );
     }
 
+    /** @param array<Tile> $tiles */
+    protected function tilesAreInSingleRow(array $tiles): bool
+    {
+        $rows = array_map(
+            fn(Tile $tile) => $tile->row,
+            $tiles,
+        );
+
+        $rows = array_unique($rows);
+
+        return count($rows) === 1;
+    }
+
+    /** @param array<Tile> $tiles */
+    protected function tilesAreInSingleColumn(array $tiles): bool
+    {
+        $columns = array_map(
+            fn(Tile $tile) => $tile->column,
+            $tiles,
+        );
+
+        $columns = array_unique($columns);
+
+        return count($columns) === 1;
+    }
+
     /** @return array<array<Tile>> */
     public function toLivewire(): array
     {
@@ -262,5 +327,39 @@ class Sudoku implements Wireable
     public static function fromLivewire(mixed $value): self
     {
         return new self($value);
+    }
+
+    protected function removeCandidateFromRow(int $candidateValue, Tile $boss): void
+    {
+        // 1. get the row for this tile
+        $tiles = $this->row($boss);
+
+        // 2. get the tiles excluding this block
+        $relevantTiles = array_filter(
+            $tiles,
+            fn(Tile $tile) => $tile->blockColumn() !== $boss->blockColumn(),
+        );
+
+        // 3. loop through them and remove this candidate if applicable
+        foreach ($relevantTiles as $tile) {
+            $tile->removeCandidate($candidateValue);
+        }
+    }
+
+    protected function removeCandidateFromColumn(int $candidateValue, Tile $boss): void
+    {
+        // 1. get the row for this tile
+        $tiles = $this->column($boss);
+
+        // 2. get the tiles excluding this block
+        $relevantTiles = array_filter(
+            $tiles,
+            fn(Tile $tile) => $tile->blockRow() !== $boss->blockRow(),
+        );
+
+        // 3. loop through them and remove this candidate if applicable
+        foreach ($relevantTiles as $tile) {
+            $tile->removeCandidate($candidateValue);
+        }
     }
 }
