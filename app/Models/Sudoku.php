@@ -175,6 +175,8 @@ class Sudoku implements Wireable
                 $this->removeCandidateFromColumn($candidate, $appearances[0]);
             }
         }
+
+        // TODO: block / block interactions: https://www.kristanix.com/sudokuepic/sudoku-solving-techniques.php
     }
 
     public function hasMetaData(): bool
